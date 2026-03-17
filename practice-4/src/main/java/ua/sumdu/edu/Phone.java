@@ -17,4 +17,18 @@ public class Phone {
     public void setStorage(int storage) { this.storage = storage; }
     public double getPrice() { return price; }
     public void setPrice(double price) { this.price = price; }
+    @Override
+    public String toString() {
+        return "Phone [Model=" + model + ", Storage=" + storage + "GB, Price=$" + price + "]";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Phone phone = (Phone) o;
+        return storage == phone.storage &&
+                Double.compare(phone.price, price) == 0 &&
+                java.util.Objects.equals(model, phone.model);
+    }
 }
