@@ -23,9 +23,11 @@ public class Main {
             phoneList.add(new Phone(model, storage, price));
         }
 
+        System.out.println("\n--- Список ваших смартфонів (Варіант 3) ---");
         for (Phone p : phoneList) {
-            System.out.println(p);
+            System.out.println(p.toString());
         }
+        System.out.println("------------------------------------------");
         scanner.close();
     }
 }
