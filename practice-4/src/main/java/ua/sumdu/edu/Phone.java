@@ -1,16 +1,29 @@
 package ua.sumdu.edu;
 
 public class Phone {
+    private static int phoneCount = 0;
+
     private String brand;
     private String model;
     private int storage;
     private double price;
+    private OsType osType;
 
-    public Phone(String brand, String model, int storage, double price) {
+    public Phone(String brand, String model, int storage, double price, OsType osType) {
         setBrand(brand);
         setModel(model);
         setStorage(storage);
         setPrice(price);
+        setOsType(osType);
+        phoneCount++;
+    }
+
+    public Phone(Phone other) {
+        this(other.brand, other.model, other.storage, other.price, other.osType);
+    }
+
+    public static int getPhoneCount() {
+        return phoneCount;
     }
 
     public String getBrand() { return brand; }
@@ -49,8 +62,18 @@ public class Phone {
         this.price = price;
     }
 
+    public OsType getOsType() { return osType; }
+
+    public void setOsType(OsType osType) {
+        if (osType == null) {
+            throw new IllegalArgumentException("Тип ОС не може бути null.");
+        }
+        this.osType = osType;
+    }
+
     @Override
     public String toString() {
-        return "Phone [Brand=" + brand + ", Model=" + model + ", Storage=" + storage + "GB, Price=$" + price + "]";
+        return "Phone [Brand=" + brand + ", Model=" + model + ", OS=" + osType +
+                ", Storage=" + storage + "GB, Price=$" + price + "]";
     }
 }
