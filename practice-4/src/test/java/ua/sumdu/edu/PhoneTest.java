@@ -12,4 +12,14 @@ class PhoneTest {
         });
         assertEquals("Ціна не може бути від'ємною.", exception.getMessage());
     }
+
+    @Test
+    void shouldThrowExceptionWhenInvalidConstructorData() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Phone("", "Galaxy S24", 256, 800.0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Phone("Samsung", "Galaxy S24", -10, 800.0);
+        });
+    }
 }
