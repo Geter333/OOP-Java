@@ -1,8 +1,6 @@
 package ua.sumdu.edu;
 
 public class Phone {
-    private static int phoneCount = 0;
-
     private String brand;
     private String model;
     private int storage;
@@ -15,15 +13,10 @@ public class Phone {
         setStorage(storage);
         setPrice(price);
         setOsType(osType);
-        phoneCount++;
     }
 
     public Phone(Phone other) {
         this(other.brand, other.model, other.storage, other.price, other.osType);
-    }
-
-    public static int getPhoneCount() {
-        return phoneCount;
     }
 
     public String getBrand() { return brand; }
