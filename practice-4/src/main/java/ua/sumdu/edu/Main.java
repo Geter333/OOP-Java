@@ -9,36 +9,25 @@ public class Main {
         ArrayList<Phone> inventory = new ArrayList<>();
         boolean running = true;
 
-        System.out.println("Вітаємо в системі обліку пристроїв!");
+        System.out.println("Вітаємо в системі обліку пристроїв (Версія 8)!");
 
         while (running) {
-            System.out.println("\n--- МЕНЮ ---");
-            System.out.println("1. Додати звичайний телефон (Phone)");
-            System.out.println("2. Додати смартфон (SmartPhone)");
-            System.out.println("3. Додати кнопковий телефон (KeypadPhone)");
-            System.out.println("4. Вивести всі пристрої (Демонстрація поліморфізму)");
-            System.out.println("5. Завершити роботу");
+            System.out.println("\n--- ГОЛОВНЕ МЕНЮ ---");
+            System.out.println("1. Створити новий об'єкт");
+            System.out.println("2. Вивести інформацію про всі об'єкти");
+            System.out.println("3. Завершити роботу програми");
             System.out.print("Оберіть дію: ");
 
-            String choice = scanner.nextLine().trim();
+            String mainChoice = scanner.nextLine().trim();
 
-            switch (choice) {
+            switch (mainChoice) {
                 case "1":
-                    Phone p = createPhone(scanner, 1);
-                    if (p != null) inventory.add(p);
+                    handleCreationMenu(scanner, inventory);
                     break;
                 case "2":
-                    Phone sp = createPhone(scanner, 2);
-                    if (sp != null) inventory.add(sp);
-                    break;
-                case "3":
-                    Phone kp = createPhone(scanner, 3);
-                    if (kp != null) inventory.add(kp);
-                    break;
-                case "4":
                     displayInventory(inventory);
                     break;
-                case "5":
+                case "3":
                     System.out.println("Роботу завершено. До побачення!");
                     running = false;
                     break;
@@ -49,8 +38,30 @@ public class Main {
         scanner.close();
     }
 
-    private static Phone createPhone(Scanner scanner, int type) {
+    private static void handleCreationMenu(Scanner scanner, ArrayList<Phone> inventory) {
+        System.out.println("\n--- МЕНЮ СТВОРЕННЯ ---");
+        System.out.println("Оберіть тип пристрою:");
+        System.out.println("1. Звичайний телефон (Phone)");
+        System.out.println("2. Смартфон (SmartPhone)");
+        System.out.println("3. Кнопковий телефон (KeypadPhone)");
+        System.out.println("4. Ігровий смартфон (GamingPhone)");
+        System.out.println("5. Складаний смартфон (FoldablePhone)");
+        System.out.println("0. Повернутися до головного меню");
+        System.out.print("Ваш вибір: ");
+
+        String choice = scanner.nextLine().trim();
+
+        if (choice.equals("0")) {
+            return;
+        }
+
         try {
+            int type = Integer.parseInt(choice);
+            if (type < 1 || type > 5) {
+                System.out.println("Помилка: Невірний тип пристрою.");
+                return;
+            }
+
             System.out.print("Введіть бренд: ");
             String brand = scanner.nextLine();
 
@@ -67,19 +78,41 @@ public class Main {
             System.out.print("Введіть ціну: ");
             double price = Double.parseDouble(scanner.nextLine().trim());
 
-            if (type == 1) {
-                System.out.println("Успіх! Телефон створено.");
-                return new Phone(brand, model, storage, price, osType);
-            } else if (type == 2) {
-                System.out.print("Чи підтримує 5G? (true/false): ");
-                boolean has5G = Boolean.parseBoolean(scanner.nextLine().trim());
-                System.out.println("Успіх! Смартфон створено.");
-                return new SmartPhone(brand, model, storage, price, osType, has5G);
-            } else if (type == 3) {
-                System.out.print("Чи є ліхтарик? (true/false): ");
-                boolean hasFlashlight = Boolean.parseBoolean(scanner.nextLine().trim());
-                System.out.println("Успіх! Кнопковий телефон створено.");
-                return new KeypadPhone(brand, model, storage, price, osType, hasFlashlight);
+            Phone newPhone = null;
+
+            switch (type) {
+                case 1:
+                    newPhone = new Phone(brand, model, storage, price, osType);
+                    break;
+                case 2:
+                    System.out.print("Чи підтримує 5G? (true/false): ");
+                    boolean has5G = Boolean.parseBoolean(scanner.nextLine().trim());
+                    newPhone = new SmartPhone(brand, model, storage, price, osType, has5G);
+                    break;
+                case 3:
+                    System.out.print("Чи є ліхтарик? (true/false): ");
+                    boolean hasFlash = Boolean.parseBoolean(scanner.nextLine().trim());
+                    newPhone = new KeypadPhone(brand, model, storage, price, osType, hasFlash);
+                    break;
+                case 4:
+                    System.out.print("Чи підтримує 5G? (true/false): ");
+                    boolean gaming5G = Boolean.parseBoolean(scanner.nextLine().trim());
+                    System.out.print("Введіть частоту оновлення екрана (Гц): ");
+                    int refreshRate = Integer.parseInt(scanner.nextLine().trim());
+                    newPhone = new GamingPhone(brand, model, storage, price, osType, gaming5G, refreshRate);
+                    break;
+                case 5:
+                    System.out.print("Чи підтримує 5G? (true/false): ");
+                    boolean fold5G = Boolean.parseBoolean(scanner.nextLine().trim());
+                    System.out.print("Введіть кількість екранів: ");
+                    int screens = Integer.parseInt(scanner.nextLine().trim());
+                    newPhone = new FoldablePhone(brand, model, storage, price, osType, fold5G, screens);
+                    break;
+            }
+
+            if (newPhone != null) {
+                inventory.add(newPhone);
+                System.out.println("Успіх! Пристрій створено та додано до бази.");
             }
 
         } catch (NumberFormatException e) {
@@ -89,14 +122,13 @@ public class Main {
         } catch (Exception e) {
             System.out.println("Непередбачувана помилка: " + e.getMessage());
         }
-        return null;
     }
 
     private static void displayInventory(ArrayList<Phone> inventory) {
         if (inventory.isEmpty()) {
-            System.out.println("Список порожній.");
+            System.out.println("\nКолекція порожня. Спочатку додайте об'єкти.");
         } else {
-            System.out.println("\n--- Всі пристрої ---");
+            System.out.println("\n--- Всі пристрої в базі ---");
             for (Phone p : inventory) {
                 System.out.println(p.toString());
             }
