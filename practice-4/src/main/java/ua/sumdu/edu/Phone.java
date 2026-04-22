@@ -1,6 +1,7 @@
 package ua.sumdu.edu;
 
 public class Phone {
+    private String type;
     private String brand;
     private String model;
     private int storage;
@@ -8,6 +9,7 @@ public class Phone {
     private OsType osType;
 
     public Phone(String brand, String model, int storage, double price, OsType osType) {
+        this.type = this.getClass().getSimpleName();
         setBrand(brand);
         setModel(model);
         setStorage(storage);
@@ -17,7 +19,12 @@ public class Phone {
 
     public Phone(Phone other) {
         this(other.brand, other.model, other.storage, other.price, other.osType);
+        this.type = other.type;
     }
+
+    public String getType() { return type; }
+
+    public void setType(String type) { this.type = type; }
 
     public String getBrand() { return brand; }
 

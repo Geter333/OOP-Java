@@ -1,21 +1,32 @@
 package ua.sumdu.edu;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class Main {
+    private static final String FILE_NAME = "input.json";
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        ArrayList<Phone> inventory = new ArrayList<>();
+        ArrayList<Phone> inventory = loadFromJson(FILE_NAME);
         boolean running = true;
 
-        System.out.println("Вітаємо в системі обліку пристроїв (Версія 8)!");
+        System.out.println("Вітаємо в системі обліку пристроїв (Версія 9 - JSON)!");
 
         while (running) {
             System.out.println("\n--- ГОЛОВНЕ МЕНЮ ---");
             System.out.println("1. Створити новий об'єкт");
             System.out.println("2. Вивести інформацію про всі об'єкти");
-            System.out.println("3. Завершити роботу програми");
+            System.out.println("3. Зберегти дані та завершити роботу");
             System.out.print("Оберіть дію: ");
 
             String mainChoice = scanner.nextLine().trim();
@@ -28,7 +39,8 @@ public class Main {
                     displayInventory(inventory);
                     break;
                 case "3":
-                    System.out.println("Роботу завершено. До побачення!");
+                    saveToJson(inventory, FILE_NAME);
+                    System.out.println("Дані успішно збережено у файл. До побачення!");
                     running = false;
                     break;
                 default:
@@ -132,6 +144,54 @@ public class Main {
             for (Phone p : inventory) {
                 System.out.println(p.toString());
             }
+        }
+    }
+
+    private static ArrayList<Phone> loadFromJson(String fileName) {
+        ArrayList<Phone> list = new ArrayList<>();
+        File file = new File(fileName);
+        if (!file.exists()) {
+            return list;
+        }
+
+        try (FileReader reader = new FileReader(file)) {
+            JsonElement jsonElement = JsonParser.parseReader(reader);
+            if (jsonElement.isJsonNull() || !jsonElement.isJsonArray()) {
+                return list;
+            }
+
+            JsonArray jsonArray = jsonElement.getAsJsonArray();
+            Gson gson = new Gson();
+
+            for (JsonElement element : jsonArray) {
+                JsonObject obj = element.getAsJsonObject();
+                if (!obj.has("type")) continue;
+                String type = obj.get("type").getAsString();
+
+                Phone p = null;
+                switch (type) {
+                    case "Phone": p = gson.fromJson(obj, Phone.class); break;
+                    case "SmartPhone": p = gson.fromJson(obj, SmartPhone.class); break;
+                    case "KeypadPhone": p = gson.fromJson(obj, KeypadPhone.class); break;
+                    case "GamingPhone": p = gson.fromJson(obj, GamingPhone.class); break;
+                    case "FoldablePhone": p = gson.fromJson(obj, FoldablePhone.class); break;
+                }
+                if (p != null) {
+                    list.add(p);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Помилка читання JSON: " + e.getMessage());
+        }
+        return list;
+    }
+
+    private static void saveToJson(ArrayList<Phone> list, String fileName) {
+        try (FileWriter writer = new FileWriter(fileName)) {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            gson.toJson(list, writer);
+        } catch (Exception e) {
+            System.out.println("Помилка запису JSON: " + e.getMessage());
         }
     }
 }
