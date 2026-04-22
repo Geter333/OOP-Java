@@ -5,12 +5,17 @@ public class GamingPhone extends SmartPhone {
 
     public GamingPhone(String brand, String model, int storage, double price, OsType osType, boolean has5G, int refreshRate) {
         super(brand, model, storage, price, osType, has5G);
-        this.refreshRate = refreshRate;
+        setRefreshRate(refreshRate);
     }
 
     public int getRefreshRate() { return refreshRate; }
 
-    public void setRefreshRate(int refreshRate) { this.refreshRate = refreshRate; }
+    public void setRefreshRate(int refreshRate) {
+        if (refreshRate <= 0) {
+            throw new IllegalArgumentException("Частота оновлення екрана повинна бути більшою за 0.");
+        }
+        this.refreshRate = refreshRate;
+    }
 
     @Override
     public String toString() {
