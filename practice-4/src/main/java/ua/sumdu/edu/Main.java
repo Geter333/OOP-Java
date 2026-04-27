@@ -17,16 +17,17 @@ public class Main {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        ArrayList<Phone> inventory = loadFromJson(FILE_NAME);
+        Store store = new Store();
+        loadFromJson(store, FILE_NAME);
         boolean running = true;
 
-        System.out.println("Вітаємо в системі обліку пристроїв (Версія 10 - Пошук)!");
+        System.out.println("Вітаємо в системі обліку пристроїв (Версія 11 - Склад/Store)!");
 
         while (running) {
             System.out.println("\n--- ГОЛОВНЕ МЕНЮ ---");
             System.out.println("1. Пошук об'єкта");
-            System.out.println("2. Створити новий об'єкт");
-            System.out.println("3. Вивести інформацію про всі об'єкти");
+            System.out.println("2. Додати товар на склад");
+            System.out.println("3. Вивести інформацію про всі товари");
             System.out.println("4. Зберегти дані та завершити роботу");
             System.out.print("Оберіть дію: ");
 
@@ -34,16 +35,16 @@ public class Main {
 
             switch (mainChoice) {
                 case "1":
-                    handleSearchMenu(scanner, inventory);
+                    handleSearchMenu(scanner, store);
                     break;
                 case "2":
-                    handleCreationMenu(scanner, inventory);
+                    handleCreationMenu(scanner, store);
                     break;
                 case "3":
-                    displayInventory(inventory);
+                    displayInventory(store);
                     break;
                 case "4":
-                    saveToJson(inventory, FILE_NAME);
+                    saveToJson(store, FILE_NAME);
                     System.out.println("Дані успішно збережено у файл. До побачення!");
                     running = false;
                     break;
@@ -54,7 +55,7 @@ public class Main {
         scanner.close();
     }
 
-    private static void handleSearchMenu(Scanner scanner, ArrayList<Phone> inventory) {
+    private static void handleSearchMenu(Scanner scanner, Store store) {
         System.out.println("\n--- МЕНЮ ПОШУКУ ---");
         System.out.println("1. Пошук за брендом");
         System.out.println("2. Пошук за операційною системою");
@@ -68,8 +69,8 @@ public class Main {
             return;
         }
 
-        if (inventory.isEmpty()) {
-            System.out.println("Колекція порожня. Пошук неможливий.");
+        if (store.getInventory().isEmpty()) {
+            System.out.println("Склад порожній. Пошук неможливий.");
             return;
         }
 
@@ -80,27 +81,34 @@ public class Main {
                 case "1":
                     System.out.print("Введіть назву бренду: ");
                     String brand = scanner.nextLine().trim();
-                    searchResults = searchByBrand(inventory, brand);
+                    searchResults = store.searchByBrand(brand);
                     break;
                 case "2":
                     System.out.print("Оберіть ОС (ANDROID, IOS, HARMONY_OS, OTHER): ");
                     String osInput = scanner.nextLine().trim().toUpperCase();
                     OsType osType = OsType.valueOf(osInput);
-                    searchResults = searchByOsType(inventory, osType);
+                    searchResults = store.searchByOsType(osType);
                     break;
                 case "3":
                     System.out.print("Введіть мінімальну ціну: ");
                     double minPrice = Double.parseDouble(scanner.nextLine().trim());
                     System.out.print("Введіть максимальну ціну: ");
                     double maxPrice = Double.parseDouble(scanner.nextLine().trim());
-                    searchResults = searchByPriceRange(inventory, minPrice, maxPrice);
+                    searchResults = store.searchByPriceRange(minPrice, maxPrice);
                     break;
                 default:
                     System.out.println("Помилка: Невідомий критерій пошуку.");
                     return;
             }
 
-            displaySearchResults(searchResults);
+            if (searchResults.isEmpty()) {
+                System.out.println("\nЖоден об'єкт не відповідає умовам пошуку.");
+            } else {
+                System.out.println("\n--- Результати пошуку ---");
+                for (Phone p : searchResults) {
+                    System.out.println(p.toString());
+                }
+            }
 
         } catch (IllegalArgumentException e) {
             System.out.println("Помилка вводу даних для пошуку: " + e.getMessage());
@@ -109,49 +117,8 @@ public class Main {
         }
     }
 
-    private static ArrayList<Phone> searchByBrand(ArrayList<Phone> inventory, String brand) {
-        ArrayList<Phone> result = new ArrayList<>();
-        for (Phone p : inventory) {
-            if (p.getBrand().equalsIgnoreCase(brand)) {
-                result.add(p);
-            }
-        }
-        return result;
-    }
-
-    private static ArrayList<Phone> searchByOsType(ArrayList<Phone> inventory, OsType osType) {
-        ArrayList<Phone> result = new ArrayList<>();
-        for (Phone p : inventory) {
-            if (p.getOsType() == osType) {
-                result.add(p);
-            }
-        }
-        return result;
-    }
-
-    private static ArrayList<Phone> searchByPriceRange(ArrayList<Phone> inventory, double min, double max) {
-        ArrayList<Phone> result = new ArrayList<>();
-        for (Phone p : inventory) {
-            if (p.getPrice() >= min && p.getPrice() <= max) {
-                result.add(p);
-            }
-        }
-        return result;
-    }
-
-    private static void displaySearchResults(ArrayList<Phone> results) {
-        if (results.isEmpty()) {
-            System.out.println("\nЖоден об'єкт не відповідає умовам пошуку.");
-        } else {
-            System.out.println("\n--- Результати пошуку ---");
-            for (Phone p : results) {
-                System.out.println(p.toString());
-            }
-        }
-    }
-
-    private static void handleCreationMenu(Scanner scanner, ArrayList<Phone> inventory) {
-        System.out.println("\n--- МЕНЮ СТВОРЕННЯ ---");
+    private static void handleCreationMenu(Scanner scanner, Store store) {
+        System.out.println("\n--- МЕНЮ ДОДАВАННЯ ТОВАРУ ---");
         System.out.println("Оберіть тип пристрою:");
         System.out.println("1. Звичайний телефон (Phone)");
         System.out.println("2. Смартфон (SmartPhone)");
@@ -223,8 +190,14 @@ public class Main {
             }
 
             if (newPhone != null) {
-                inventory.add(newPhone);
-                System.out.println("Успіх! Пристрій створено та додано до бази.");
+                System.out.print("Введіть кількість одиниць цього товару для додавання: ");
+                int quantity = Integer.parseInt(scanner.nextLine().trim());
+                if (quantity <= 0) {
+                    System.out.println("Помилка: Кількість має бути більшою за нуль.");
+                    return;
+                }
+                store.addNewPhone(newPhone, quantity);
+                System.out.println("Успіх! Товар додано на склад.");
             }
 
         } catch (NumberFormatException e) {
@@ -236,28 +209,28 @@ public class Main {
         }
     }
 
-    private static void displayInventory(ArrayList<Phone> inventory) {
+    private static void displayInventory(Store store) {
+        ArrayList<StoreItem> inventory = store.getInventory();
         if (inventory.isEmpty()) {
-            System.out.println("\nКолекція порожня. Спочатку додайте об'єкти.");
+            System.out.println("\nСклад порожній. Спочатку додайте товари.");
         } else {
-            System.out.println("\n--- Всі пристрої в базі ---");
-            for (Phone p : inventory) {
-                System.out.println(p.toString());
+            System.out.println("\n--- Всі товари на складі ---");
+            for (StoreItem item : inventory) {
+                System.out.println(item.toString());
             }
         }
     }
 
-    private static ArrayList<Phone> loadFromJson(String fileName) {
-        ArrayList<Phone> list = new ArrayList<>();
+    private static void loadFromJson(Store store, String fileName) {
         File file = new File(fileName);
         if (!file.exists()) {
-            return list;
+            return;
         }
 
         try (FileReader reader = new FileReader(file)) {
             JsonElement jsonElement = JsonParser.parseReader(reader);
             if (jsonElement.isJsonNull() || !jsonElement.isJsonArray()) {
-                return list;
+                return;
             }
 
             JsonArray jsonArray = jsonElement.getAsJsonArray();
@@ -265,31 +238,36 @@ public class Main {
 
             for (JsonElement element : jsonArray) {
                 JsonObject obj = element.getAsJsonObject();
-                if (!obj.has("type")) continue;
-                String type = obj.get("type").getAsString();
+
+                if (!obj.has("phone") || !obj.has("quantity")) continue;
+
+                int quantity = obj.get("quantity").getAsInt();
+                JsonObject phoneObj = obj.getAsJsonObject("phone");
+
+                if (!phoneObj.has("type")) continue;
+                String type = phoneObj.get("type").getAsString();
 
                 Phone p = null;
                 switch (type) {
-                    case "Phone": p = gson.fromJson(obj, Phone.class); break;
-                    case "SmartPhone": p = gson.fromJson(obj, SmartPhone.class); break;
-                    case "KeypadPhone": p = gson.fromJson(obj, KeypadPhone.class); break;
-                    case "GamingPhone": p = gson.fromJson(obj, GamingPhone.class); break;
-                    case "FoldablePhone": p = gson.fromJson(obj, FoldablePhone.class); break;
+                    case "Phone": p = gson.fromJson(phoneObj, Phone.class); break;
+                    case "SmartPhone": p = gson.fromJson(phoneObj, SmartPhone.class); break;
+                    case "KeypadPhone": p = gson.fromJson(phoneObj, KeypadPhone.class); break;
+                    case "GamingPhone": p = gson.fromJson(phoneObj, GamingPhone.class); break;
+                    case "FoldablePhone": p = gson.fromJson(phoneObj, FoldablePhone.class); break;
                 }
                 if (p != null) {
-                    list.add(p);
+                    store.addNewPhone(p, quantity);
                 }
             }
         } catch (Exception e) {
             System.out.println("Помилка читання JSON: " + e.getMessage());
         }
-        return list;
     }
 
-    private static void saveToJson(ArrayList<Phone> list, String fileName) {
+    private static void saveToJson(Store store, String fileName) {
         try (FileWriter writer = new FileWriter(fileName)) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            gson.toJson(list, writer);
+            gson.toJson(store.getInventory(), writer);
         } catch (Exception e) {
             System.out.println("Помилка запису JSON: " + e.getMessage());
         }
