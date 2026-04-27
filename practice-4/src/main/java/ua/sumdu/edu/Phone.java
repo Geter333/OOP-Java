@@ -76,4 +76,27 @@ public class Phone {
         return "Phone [Brand=" + brand + ", Model=" + model + ", OS=" + osType +
                 ", Storage=" + storage + "GB, Price=$" + price + "]";
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Phone)) return false;
+        Phone phone = (Phone) o;
+        return storage == phone.storage &&
+                Double.compare(phone.price, price) == 0 &&
+                brand.equalsIgnoreCase(phone.brand) &&
+                model.equalsIgnoreCase(phone.model) &&
+                osType == phone.osType;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = brand.toLowerCase().hashCode();
+        result = 31 * result + model.toLowerCase().hashCode();
+        result = 31 * result + storage;
+        long temp = Double.doubleToLongBits(price);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + osType.hashCode();
+        return result;
+    }
 }
