@@ -20,25 +20,29 @@ public class Main {
         ArrayList<Phone> inventory = loadFromJson(FILE_NAME);
         boolean running = true;
 
-        System.out.println("Вітаємо в системі обліку пристроїв (Версія 9 - JSON)!");
+        System.out.println("Вітаємо в системі обліку пристроїв (Версія 10 - Пошук)!");
 
         while (running) {
             System.out.println("\n--- ГОЛОВНЕ МЕНЮ ---");
-            System.out.println("1. Створити новий об'єкт");
-            System.out.println("2. Вивести інформацію про всі об'єкти");
-            System.out.println("3. Зберегти дані та завершити роботу");
+            System.out.println("1. Пошук об'єкта");
+            System.out.println("2. Створити новий об'єкт");
+            System.out.println("3. Вивести інформацію про всі об'єкти");
+            System.out.println("4. Зберегти дані та завершити роботу");
             System.out.print("Оберіть дію: ");
 
             String mainChoice = scanner.nextLine().trim();
 
             switch (mainChoice) {
                 case "1":
-                    handleCreationMenu(scanner, inventory);
+                    handleSearchMenu(scanner, inventory);
                     break;
                 case "2":
-                    displayInventory(inventory);
+                    handleCreationMenu(scanner, inventory);
                     break;
                 case "3":
+                    displayInventory(inventory);
+                    break;
+                case "4":
                     saveToJson(inventory, FILE_NAME);
                     System.out.println("Дані успішно збережено у файл. До побачення!");
                     running = false;
@@ -48,6 +52,102 @@ public class Main {
             }
         }
         scanner.close();
+    }
+
+    private static void handleSearchMenu(Scanner scanner, ArrayList<Phone> inventory) {
+        System.out.println("\n--- МЕНЮ ПОШУКУ ---");
+        System.out.println("1. Пошук за брендом");
+        System.out.println("2. Пошук за операційною системою");
+        System.out.println("3. Пошук за діапазоном ціни");
+        System.out.println("0. Повернутися до головного меню");
+        System.out.print("Оберіть критерій пошуку: ");
+
+        String choice = scanner.nextLine().trim();
+
+        if (choice.equals("0")) {
+            return;
+        }
+
+        if (inventory.isEmpty()) {
+            System.out.println("Колекція порожня. Пошук неможливий.");
+            return;
+        }
+
+        ArrayList<Phone> searchResults = new ArrayList<>();
+
+        try {
+            switch (choice) {
+                case "1":
+                    System.out.print("Введіть назву бренду: ");
+                    String brand = scanner.nextLine().trim();
+                    searchResults = searchByBrand(inventory, brand);
+                    break;
+                case "2":
+                    System.out.print("Оберіть ОС (ANDROID, IOS, HARMONY_OS, OTHER): ");
+                    String osInput = scanner.nextLine().trim().toUpperCase();
+                    OsType osType = OsType.valueOf(osInput);
+                    searchResults = searchByOsType(inventory, osType);
+                    break;
+                case "3":
+                    System.out.print("Введіть мінімальну ціну: ");
+                    double minPrice = Double.parseDouble(scanner.nextLine().trim());
+                    System.out.print("Введіть максимальну ціну: ");
+                    double maxPrice = Double.parseDouble(scanner.nextLine().trim());
+                    searchResults = searchByPriceRange(inventory, minPrice, maxPrice);
+                    break;
+                default:
+                    System.out.println("Помилка: Невідомий критерій пошуку.");
+                    return;
+            }
+
+            displaySearchResults(searchResults);
+
+        } catch (IllegalArgumentException e) {
+            System.out.println("Помилка вводу даних для пошуку: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Непередбачувана помилка: " + e.getMessage());
+        }
+    }
+
+    private static ArrayList<Phone> searchByBrand(ArrayList<Phone> inventory, String brand) {
+        ArrayList<Phone> result = new ArrayList<>();
+        for (Phone p : inventory) {
+            if (p.getBrand().equalsIgnoreCase(brand)) {
+                result.add(p);
+            }
+        }
+        return result;
+    }
+
+    private static ArrayList<Phone> searchByOsType(ArrayList<Phone> inventory, OsType osType) {
+        ArrayList<Phone> result = new ArrayList<>();
+        for (Phone p : inventory) {
+            if (p.getOsType() == osType) {
+                result.add(p);
+            }
+        }
+        return result;
+    }
+
+    private static ArrayList<Phone> searchByPriceRange(ArrayList<Phone> inventory, double min, double max) {
+        ArrayList<Phone> result = new ArrayList<>();
+        for (Phone p : inventory) {
+            if (p.getPrice() >= min && p.getPrice() <= max) {
+                result.add(p);
+            }
+        }
+        return result;
+    }
+
+    private static void displaySearchResults(ArrayList<Phone> results) {
+        if (results.isEmpty()) {
+            System.out.println("\nЖоден об'єкт не відповідає умовам пошуку.");
+        } else {
+            System.out.println("\n--- Результати пошуку ---");
+            for (Phone p : results) {
+                System.out.println(p.toString());
+            }
+        }
     }
 
     private static void handleCreationMenu(Scanner scanner, ArrayList<Phone> inventory) {
