@@ -1,6 +1,6 @@
 package ua.sumdu.edu;
 
-public class StoreItem {
+public class StoreItem implements Comparable<StoreItem> {
     private Phone phone;
     private int quantity;
 
@@ -15,6 +15,11 @@ public class StoreItem {
 
     public void addQuantity(int amount) {
         this.quantity += amount;
+    }
+
+    @Override
+    public int compareTo(StoreItem other) {
+        return this.phone.compareTo(other.getPhone());
     }
 
     @Override
