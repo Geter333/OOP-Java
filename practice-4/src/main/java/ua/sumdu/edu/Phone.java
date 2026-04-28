@@ -1,6 +1,6 @@
 package ua.sumdu.edu;
 
-public class Phone {
+public abstract class Phone implements Comparable<Phone> {
     private String type;
     private String brand;
     private String model;
@@ -98,5 +98,15 @@ public class Phone {
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + osType.hashCode();
         return result;
+    }
+
+    @Override
+    public int compareTo(Phone other) {
+        int priceComparison = Double.compare(this.price, other.price);
+
+        if (priceComparison == 0) {
+            return this.brand.compareToIgnoreCase(other.brand);
+        }
+        return priceComparison;
     }
 }

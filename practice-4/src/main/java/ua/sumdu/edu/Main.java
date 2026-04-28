@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Collections; // Додано для сортування
 import java.util.Scanner;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -30,14 +31,15 @@ public class Main {
         loadFromJson(store, FILE_NAME);
         boolean running = true;
 
-        System.out.println("Вітаємо в системі обліку пристроїв (Версія 12 - JDBC/База Даних)!");
+        System.out.println("Вітаємо в системі обліку пристроїв (Версія 13 - Comparable/Sorting)!");
 
         while (running) {
             System.out.println("\n--- ГОЛОВНЕ МЕНЮ ---");
             System.out.println("1. Пошук об'єкта");
             System.out.println("2. Додати товар на склад");
             System.out.println("3. Вивести інформацію про всі товари");
-            System.out.println("4. Зберегти дані та завершити роботу");
+            System.out.println("4. Вивести відсортовану інформацію про всі товари"); // НОВИЙ ПУНКТ
+            System.out.println("5. Зберегти дані та завершити роботу");
             System.out.print("Оберіть дію: ");
 
             String mainChoice = scanner.nextLine().trim();
@@ -53,6 +55,9 @@ public class Main {
                     displayInventory(store);
                     break;
                 case "4":
+                    displaySortedInventory(store); // ВИКЛИК НОВОГО МЕТОДУ
+                    break;
+                case "5":
                     saveToJson(store, FILE_NAME);
                     System.out.println("Дані успішно збережено у файл. До побачення!");
                     running = false;
@@ -129,7 +134,7 @@ public class Main {
     private static void handleCreationMenu(Scanner scanner, Store store, DatabaseManager dbManager) {
         System.out.println("\n--- МЕНЮ ДОДАВАННЯ ТОВАРУ ---");
         System.out.println("Оберіть тип пристрою:");
-        System.out.println("1. Звичайний телефон (Phone)");
+        System.out.println("1. Звичайний телефон (BasicPhone)"); // Оновлено назву
         System.out.println("2. Смартфон (SmartPhone)");
         System.out.println("3. Кнопковий телефон (KeypadPhone)");
         System.out.println("4. Ігровий смартфон (GamingPhone)");
@@ -170,7 +175,7 @@ public class Main {
 
             switch (type) {
                 case 1:
-                    newPhone = new Phone(brand, model, storage, price, osType);
+                    newPhone = new BasicPhone(brand, model, storage, price, osType);
                     break;
                 case 2:
                     System.out.print("Чи підтримує 5G? (true/false): ");
@@ -233,6 +238,23 @@ public class Main {
         }
     }
 
+    private static void displaySortedInventory(Store store) {
+        ArrayList<StoreItem> inventory = store.getInventory();
+        if (inventory.isEmpty()) {
+            System.out.println("\nСклад порожній. Сортування неможливе.");
+            return;
+        }
+
+        ArrayList<StoreItem> sortedItems = new ArrayList<>(inventory);
+
+        Collections.sort(sortedItems);
+
+        System.out.println("\n--- Всі товари на складі (ВІДСОРТОВАНО ЗА ЦІНОЮ) ---");
+        for (StoreItem item : sortedItems) {
+            System.out.println(item.toString());
+        }
+    }
+
     private static void loadFromJson(Store store, String fileName) {
         File file = new File(fileName);
         if (!file.exists()) {
@@ -261,7 +283,8 @@ public class Main {
 
                 Phone p = null;
                 switch (type) {
-                    case "Phone": p = gson.fromJson(phoneObj, Phone.class); break;
+                    case "Phone":
+                    case "BasicPhone": p = gson.fromJson(phoneObj, BasicPhone.class); break; // Підтримка обох типів
                     case "SmartPhone": p = gson.fromJson(phoneObj, SmartPhone.class); break;
                     case "KeypadPhone": p = gson.fromJson(phoneObj, KeypadPhone.class); break;
                     case "GamingPhone": p = gson.fromJson(phoneObj, GamingPhone.class); break;
