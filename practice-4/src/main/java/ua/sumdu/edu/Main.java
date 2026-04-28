@@ -16,12 +16,21 @@ public class Main {
     private static final String FILE_NAME = "input.json";
 
     public static void main(String[] args) {
+        if (args.length == 0) {
+            System.out.println("Помилка: Не вказано шлях до файлу конфігурації бази даних.");
+            System.out.println("Для запуску використовуйте аргумент, наприклад: app.properties");
+            return;
+        }
+
+        String configPath = args[0];
+        DatabaseManager dbManager = new DatabaseManager(configPath);
+
         Scanner scanner = new Scanner(System.in);
         Store store = new Store();
         loadFromJson(store, FILE_NAME);
         boolean running = true;
 
-        System.out.println("Вітаємо в системі обліку пристроїв (Версія 11 - Склад/Store)!");
+        System.out.println("Вітаємо в системі обліку пристроїв (Версія 12 - JDBC/База Даних)!");
 
         while (running) {
             System.out.println("\n--- ГОЛОВНЕ МЕНЮ ---");
@@ -38,7 +47,7 @@ public class Main {
                     handleSearchMenu(scanner, store);
                     break;
                 case "2":
-                    handleCreationMenu(scanner, store);
+                    handleCreationMenu(scanner, store, dbManager);
                     break;
                 case "3":
                     displayInventory(store);
@@ -117,7 +126,7 @@ public class Main {
         }
     }
 
-    private static void handleCreationMenu(Scanner scanner, Store store) {
+    private static void handleCreationMenu(Scanner scanner, Store store, DatabaseManager dbManager) {
         System.out.println("\n--- МЕНЮ ДОДАВАННЯ ТОВАРУ ---");
         System.out.println("Оберіть тип пристрою:");
         System.out.println("1. Звичайний телефон (Phone)");
@@ -196,8 +205,11 @@ public class Main {
                     System.out.println("Помилка: Кількість має бути більшою за нуль.");
                     return;
                 }
+
                 store.addNewPhone(newPhone, quantity);
-                System.out.println("Успіх! Товар додано на склад.");
+                System.out.println("Успіх! Товар додано на склад (в пам'ять).");
+
+                dbManager.savePhone(newPhone, quantity);
             }
 
         } catch (NumberFormatException e) {
