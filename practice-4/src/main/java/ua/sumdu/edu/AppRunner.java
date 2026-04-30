@@ -2,6 +2,7 @@ package ua.sumdu.edu;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Scanner;
 
 public class AppRunner {
@@ -23,7 +24,7 @@ public class AppRunner {
         jsonManager.loadFromJson(store, FILE_NAME);
         boolean running = true;
 
-        System.out.println("Вітаємо в системі обліку пристроїв (Версія 13 - Comparable/Sorting)!");
+        System.out.println("Вітаємо в системі обліку пристроїв (Версія 14 - Comparator)!");
 
         while (running) {
             System.out.println("\n--- ГОЛОВНЕ МЕНЮ ---");
@@ -237,11 +238,58 @@ public class AppRunner {
             return;
         }
 
+        System.out.println("\n--- МЕНЮ СОРТУВАННЯ ---");
+        System.out.println("Оберіть критерій сортування:");
+        System.out.println("1. За об'ємом пам'яті (від меншого до більшого)");
+        System.out.println("2. За ціною (від найдорожчих до найдешевших)");
+        System.out.println("3. За назвою моделі (за алфавітом)");
+        System.out.println("0. Повернутися в головне меню");
+        System.out.print("Ваш вибір: ");
+
+        String choice = scanner.nextLine().trim();
         ArrayList<StoreItem> sortedItems = new ArrayList<>(inventory);
+        String sortCriteria = "";
 
-        Collections.sort(sortedItems);
+        Comparator<StoreItem> comparator = null;
 
-        System.out.println("\n--- Всі товари на складі (ВІДСОРТОВАНО ЗА ЦІНОЮ) ---");
+        switch (choice) {
+            case "1":
+                comparator = new Comparator<StoreItem>() {
+                    @Override
+                    public int compare(StoreItem o1, StoreItem o2) {
+                        return Integer.compare(o1.getPhone().getStorage(), o2.getPhone().getStorage());
+                    }
+                };
+                sortCriteria = "ЗА ОБ'ЄМОМ ПАМ'ЯТІ";
+                break;
+            case "2":
+                comparator = new Comparator<StoreItem>() {
+                    @Override
+                    public int compare(StoreItem o1, StoreItem o2) {
+                        return Double.compare(o2.getPhone().getPrice(), o1.getPhone().getPrice());
+                    }
+                };
+                sortCriteria = "ЗА ЦІНОЮ (ПО СПАДАННЮ)";
+                break;
+            case "3":
+                comparator = new Comparator<StoreItem>() {
+                    @Override
+                    public int compare(StoreItem o1, StoreItem o2) {
+                        return o1.getPhone().getModel().compareToIgnoreCase(o2.getPhone().getModel());
+                    }
+                };
+                sortCriteria = "ЗА НАЗВОЮ МОДЕЛІ";
+                break;
+            case "0":
+                return;
+            default:
+                System.out.println("Помилка: Невідомий критерій сортування.");
+                return;
+        }
+
+        Collections.sort(sortedItems, comparator);
+
+        System.out.println("\n--- Всі товари на складі (ВІДСОРТОВАНО " + sortCriteria + ") ---");
         for (StoreItem item : sortedItems) {
             System.out.println(item.toString());
         }
