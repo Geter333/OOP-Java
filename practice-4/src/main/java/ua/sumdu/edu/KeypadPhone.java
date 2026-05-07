@@ -3,7 +3,7 @@ package ua.sumdu.edu;
 public class KeypadPhone extends Phone {
     private boolean hasFlashlight;
 
-    public KeypadPhone(String brand, String model, int storage, double price, OsType osType, boolean hasFlashlight) {
+    public KeypadPhone(String brand, String model, int storage, double price, OsType osType, boolean hasFlashlight) throws InvalidFieldValueException {
         super(brand, model, storage, price, osType);
         this.hasFlashlight = hasFlashlight;
     }

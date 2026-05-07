@@ -33,11 +33,14 @@ public class Store {
         return null;
     }
 
-    public boolean delete(UUID uuidToDelete) {
-        return inventory.removeIf(item -> item.getPhone().getUuid().equals(uuidToDelete));
+    public void delete(UUID uuidToDelete) throws ObjectNotFoundException {
+        boolean removed = inventory.removeIf(item -> item.getPhone().getUuid().equals(uuidToDelete));
+        if (!removed) {
+            throw new ObjectNotFoundException("Phone with UUID " + uuidToDelete + " not found.");
+        }
     }
 
-    public boolean update(UUID uuidToUpdate, Phone newPhoneData) {
+    public void update(UUID uuidToUpdate, Phone newPhoneData) throws ObjectNotFoundException, InvalidFieldValueException {
         for (StoreItem item : inventory) {
             if (item.getPhone().getUuid().equals(uuidToUpdate)) {
                 Phone phoneToUpdate = item.getPhone();
@@ -46,11 +49,10 @@ public class Store {
                 phoneToUpdate.setStorage(newPhoneData.getStorage());
                 phoneToUpdate.setPrice(newPhoneData.getPrice());
                 phoneToUpdate.setOsType(newPhoneData.getOsType());
-                // Note: UUID and Type are not updated as they are intrinsic properties.
-                return true;
+                return;
             }
         }
-        return false;
+        throw new ObjectNotFoundException("Phone with UUID " + uuidToUpdate + " not found.");
     }
 
     public ArrayList<Phone> searchByBrand(String brand) {
