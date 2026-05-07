@@ -131,11 +131,9 @@ public class GuiApp extends Application {
             try {
                 UUID uuid = UUID.fromString(uuidText);
                 Phone foundPhone = store.searchByUuid(uuid);
-                if (foundPhone != null) {
-                    searchResultLabel.setText("Знайдено:\n" + foundPhone.toString());
-                } else {
-                    searchResultLabel.setText("Телефон з таким UUID не знайдено.");
-                }
+                searchResultLabel.setText("Знайдено:\n" + foundPhone.toString());
+            } catch (ObjectNotFoundException ex) {
+                searchResultLabel.setText(ex.getMessage());
             } catch (IllegalArgumentException ex) {
                 searchResultLabel.setText("Помилка: Некоректний формат UUID.");
             }

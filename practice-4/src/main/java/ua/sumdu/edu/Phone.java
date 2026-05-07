@@ -39,7 +39,7 @@ public abstract class Phone implements Comparable<Phone>, Identifiable {
 
     public void setBrand(String brand) {
         if (brand == null || brand.trim().isEmpty()) {
-            throw new IllegalArgumentException("Бренд не може бути порожнім.");
+            throw new InvalidFieldValueException("Бренд не може бути порожнім.");
         }
         this.brand = brand;
     }
@@ -48,7 +48,7 @@ public abstract class Phone implements Comparable<Phone>, Identifiable {
 
     public void setModel(String model) {
         if (model == null || model.trim().isEmpty()) {
-            throw new IllegalArgumentException("Модель не може бути порожньою.");
+            throw new InvalidFieldValueException("Модель не може бути порожньою.");
         }
         this.model = model;
     }
@@ -57,7 +57,7 @@ public abstract class Phone implements Comparable<Phone>, Identifiable {
 
     public void setStorage(int storage) {
         if (storage <= 0) {
-            throw new IllegalArgumentException("Об'єм пам'яті повинен бути більшим за 0.");
+            throw new InvalidFieldValueException("Об'єм пам'яті повинен бути більшим за 0.");
         }
         this.storage = storage;
     }
@@ -66,7 +66,7 @@ public abstract class Phone implements Comparable<Phone>, Identifiable {
 
     public void setPrice(double price) {
         if (price < 0) {
-            throw new IllegalArgumentException("Ціна не може бути від'ємною.");
+            throw new InvalidFieldValueException("Ціна не може бути від'ємною.");
         }
         this.price = price;
     }
@@ -75,7 +75,7 @@ public abstract class Phone implements Comparable<Phone>, Identifiable {
 
     public void setOsType(OsType osType) {
         if (osType == null) {
-            throw new IllegalArgumentException("Тип ОС не може бути null.");
+            throw new InvalidFieldValueException("Тип ОС не може бути null.");
         }
         this.osType = osType;
     }

@@ -24,20 +24,22 @@ public class Store {
         return inventory;
     }
 
-    public Phone searchByUuid(UUID uuid) {
+    public Phone searchByUuid(UUID uuid) throws ObjectNotFoundException {
         for (StoreItem item : inventory) {
             if (item.getPhone().getUuid().equals(uuid)) {
                 return item.getPhone();
             }
         }
-        return null;
+        throw new ObjectNotFoundException("Телефон з UUID " + uuid + " не знайдено.");
     }
 
-    public boolean delete(UUID uuidToDelete) {
-        return inventory.removeIf(item -> item.getPhone().getUuid().equals(uuidToDelete));
+    public void delete(UUID uuidToDelete) throws ObjectNotFoundException {
+        if (!inventory.removeIf(item -> item.getPhone().getUuid().equals(uuidToDelete))) {
+            throw new ObjectNotFoundException("Не вдалося видалити: телефон з UUID " + uuidToDelete + " не знайдено.");
+        }
     }
 
-    public boolean update(UUID uuidToUpdate, Phone newPhoneData) {
+    public void update(UUID uuidToUpdate, Phone newPhoneData) throws ObjectNotFoundException {
         for (StoreItem item : inventory) {
             if (item.getPhone().getUuid().equals(uuidToUpdate)) {
                 Phone phoneToUpdate = item.getPhone();
@@ -46,11 +48,10 @@ public class Store {
                 phoneToUpdate.setStorage(newPhoneData.getStorage());
                 phoneToUpdate.setPrice(newPhoneData.getPrice());
                 phoneToUpdate.setOsType(newPhoneData.getOsType());
-                // Note: UUID and Type are not updated as they are intrinsic properties.
-                return true;
+                return;
             }
         }
-        return false;
+        throw new ObjectNotFoundException("Не вдалося оновити: телефон з UUID " + uuidToUpdate + " не знайдено.");
     }
 
     public ArrayList<Phone> searchByBrand(String brand) {
