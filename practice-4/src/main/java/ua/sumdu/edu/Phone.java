@@ -1,6 +1,9 @@
 package ua.sumdu.edu;
 
-public abstract class Phone implements Comparable<Phone> {
+import java.util.UUID;
+
+public abstract class Phone implements Comparable<Phone>, Identifiable {
+    private final UUID uuid;
     private String type;
     private String brand;
     private String model;
@@ -9,6 +12,7 @@ public abstract class Phone implements Comparable<Phone> {
     private OsType osType;
 
     public Phone(String brand, String model, int storage, double price, OsType osType) {
+        this.uuid = UUID.randomUUID();
         this.type = this.getClass().getSimpleName();
         setBrand(brand);
         setModel(model);
@@ -20,6 +24,11 @@ public abstract class Phone implements Comparable<Phone> {
     public Phone(Phone other) {
         this(other.brand, other.model, other.storage, other.price, other.osType);
         this.type = other.type;
+    }
+
+    @Override
+    public UUID getUuid() {
+        return uuid;
     }
 
     public String getType() { return type; }
@@ -73,7 +82,7 @@ public abstract class Phone implements Comparable<Phone> {
 
     @Override
     public String toString() {
-        return "Phone [Brand=" + brand + ", Model=" + model + ", OS=" + osType +
+        return "Phone [UUID=" + uuid + ", Brand=" + brand + ", Model=" + model + ", OS=" + osType +
                 ", Storage=" + storage + "GB, Price=$" + price + "]";
     }
 

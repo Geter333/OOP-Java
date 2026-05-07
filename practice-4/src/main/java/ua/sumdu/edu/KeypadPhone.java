@@ -14,8 +14,7 @@ public class KeypadPhone extends Phone {
 
     @Override
     public String toString() {
-        return "KeypadPhone [Brand=" + getBrand() + ", Model=" + getModel() +
-                ", OS=" + getOsType() + ", Storage=" + getStorage() +
-                "GB, Price=$" + getPrice() + ", Flashlight=" + (hasFlashlight ? "Yes" : "No") + "]";
+        return super.toString().replace("Phone [", "KeypadPhone [") +
+                ", Flashlight=" + (hasFlashlight ? "Yes" : "No") + "]";
     }
 }

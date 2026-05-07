@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Scanner;
+import java.util.UUID;
 
 public class AppRunner {
 
@@ -24,7 +25,7 @@ public class AppRunner {
         jsonManager.loadFromJson(store, FILE_NAME);
         boolean running = true;
 
-        System.out.println("Вітаємо в системі обліку пристроїв (Версія 15 - Lambda)!");
+        System.out.println("Вітаємо в системі обліку пристроїв (Версія 16 - UUID)!");
 
         while (running) {
             System.out.println("\n--- ГОЛОВНЕ МЕНЮ ---");
@@ -67,6 +68,7 @@ public class AppRunner {
         System.out.println("1. Пошук за брендом");
         System.out.println("2. Пошук за операційною системою");
         System.out.println("3. Пошук за діапазоном ціни");
+        System.out.println("4. Пошук за UUID");
         System.out.println("0. Повернутися до головного меню");
         System.out.print("Оберіть критерій пошуку: ");
 
@@ -81,46 +83,64 @@ public class AppRunner {
             return;
         }
 
-        ArrayList<Phone> searchResults = new ArrayList<>();
-
         try {
             switch (choice) {
                 case "1":
                     System.out.print("Введіть назву бренду: ");
                     String brand = scanner.nextLine().trim();
-                    searchResults = store.searchByBrand(brand);
+                    ArrayList<Phone> searchResultsByBrand = store.searchByBrand(brand);
+                    displaySearchResults(searchResultsByBrand);
                     break;
                 case "2":
                     System.out.print("Оберіть ОС (ANDROID, IOS, HARMONY_OS, OTHER): ");
                     String osInput = scanner.nextLine().trim().toUpperCase();
                     OsType osType = OsType.valueOf(osInput);
-                    searchResults = store.searchByOsType(osType);
+                    ArrayList<Phone> searchResultsByOs = store.searchByOsType(osType);
+                    displaySearchResults(searchResultsByOs);
                     break;
                 case "3":
                     System.out.print("Введіть мінімальну ціну: ");
                     double minPrice = Double.parseDouble(scanner.nextLine().trim());
                     System.out.print("Введіть максимальну ціну: ");
                     double maxPrice = Double.parseDouble(scanner.nextLine().trim());
-                    searchResults = store.searchByPriceRange(minPrice, maxPrice);
+                    ArrayList<Phone> searchResultsByPrice = store.searchByPriceRange(minPrice, maxPrice);
+                    displaySearchResults(searchResultsByPrice);
+                    break;
+                case "4":
+                    System.out.print("Введіть UUID для пошуку: ");
+                    String uuidInput = scanner.nextLine().trim();
+                    try {
+                        UUID uuid = UUID.fromString(uuidInput);
+                        Phone foundPhone = store.searchByUuid(uuid);
+                        if (foundPhone != null) {
+                            System.out.println("\n--- Знайдено об'єкт ---");
+                            System.out.println(foundPhone.toString());
+                        } else {
+                            System.out.println("\nОб'єкт з таким UUID не знайдено.");
+                        }
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Помилка: Некоректний формат UUID.");
+                    }
                     break;
                 default:
                     System.out.println("Помилка: Невідомий критерій пошуку.");
                     return;
             }
-
-            if (searchResults.isEmpty()) {
-                System.out.println("\nЖоден об'єкт не відповідає умовам пошуку.");
-            } else {
-                System.out.println("\n--- Результати пошуку ---");
-                for (Phone p : searchResults) {
-                    System.out.println(p.toString());
-                }
-            }
-
         } catch (IllegalArgumentException e) {
             System.out.println("Помилка вводу даних для пошуку: " + e.getMessage());
         } catch (Exception e) {
             System.out.println("Непередбачувана помилка: " + e.getMessage());
+        }
+    }
+
+    private void displaySearchResults(ArrayList<Phone> results) {
+        if (results.isEmpty()) {
+            System.out.println("\nЖоден об'єкт не відповідає умовам пошуку.");
+        } else {
+            System.out.println("\n--- Результати пошуку ---");
+            for (Phone p : results) {
+                System.out.println(p.toString());
+            }
         }
     }
 
@@ -206,7 +226,7 @@ public class AppRunner {
 
                 store.addNewPhone(newPhone, quantity);
                 System.out.println("Успіх! Товар додано на склад (в пам'ять).");
-
+                System.out.println(newPhone.toString());
                 dbManager.savePhone(newPhone, quantity);
             }
 

@@ -1,6 +1,7 @@
 package ua.sumdu.edu;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class Store {
     private ArrayList<StoreItem> inventory;
@@ -21,6 +22,15 @@ public class Store {
 
     public ArrayList<StoreItem> getInventory() {
         return inventory;
+    }
+
+    public Phone searchByUuid(UUID uuid) {
+        for (StoreItem item : inventory) {
+            if (item.getPhone().getUuid().equals(uuid)) {
+                return item.getPhone();
+            }
+        }
+        return null;
     }
 
     public ArrayList<Phone> searchByBrand(String brand) {

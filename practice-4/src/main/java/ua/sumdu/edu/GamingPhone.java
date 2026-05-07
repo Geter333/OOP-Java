@@ -19,9 +19,7 @@ public class GamingPhone extends SmartPhone {
 
     @Override
     public String toString() {
-        return "GamingPhone [Brand=" + getBrand() + ", Model=" + getModel() +
-                ", OS=" + getOsType() + ", Storage=" + getStorage() +
-                "GB, Price=$" + getPrice() + ", 5G=" + (isHas5G() ? "Yes" : "No") +
+        return super.toString().replace("SmartPhone [", "GamingPhone [") +
                 ", RefreshRate=" + refreshRate + "Hz]";
     }
 }
