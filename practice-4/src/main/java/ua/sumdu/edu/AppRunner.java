@@ -25,7 +25,7 @@ public class AppRunner {
         jsonManager.loadFromJson(store, FILE_NAME);
         boolean running = true;
 
-        System.out.println("Вітаємо в системі обліку пристроїв (Версія 16 - UUID)!");
+        System.out.println("Вітаємо в системі обліку пристроїв (Версія 17 - Modification and Deletion)!");
 
         while (running) {
             System.out.println("\n--- ГОЛОВНЕ МЕНЮ ---");
@@ -33,7 +33,9 @@ public class AppRunner {
             System.out.println("2. Додати товар на склад");
             System.out.println("3. Вивести інформацію про всі товари");
             System.out.println("4. Вивести відсортовану інформацію про всі товари");
-            System.out.println("5. Зберегти дані та завершити роботу");
+            System.out.println("5. Модифікувати товар");
+            System.out.println("6. Видалити товар");
+            System.out.println("7. Зберегти дані та завершити роботу");
             System.out.print("Оберіть дію: ");
 
             String mainChoice = scanner.nextLine().trim();
@@ -51,7 +53,13 @@ public class AppRunner {
                 case "4":
                     displaySortedInventory();
                     break;
-                case "5":
+                case "5": // Обробка модифікації
+                    handleModificationMenu();
+                    break;
+                case "6": // Обробка видалення
+                    handleDeletionMenu();
+                    break;
+                case "7": // Обробка збереження та виходу
                     jsonManager.saveToJson(store, FILE_NAME);
                     System.out.println("Дані успішно збережено у файл. До побачення!");
                     running = false;
@@ -297,6 +305,149 @@ public class AppRunner {
         System.out.println("\n--- Всі товари на складі (ВІДСОРТОВАНО " + sortCriteria + ") ---");
         for (StoreItem item : sortedItems) {
             System.out.println(item.toString());
+        }
+    }
+
+    private void handleModificationMenu() {
+        System.out.println("\n--- МЕНЮ МОДИФІКАЦІЇ ТОВАРУ ---");
+        if (store.getInventory().isEmpty()) {
+            System.out.println("Склад порожній. Модифікація неможлива.");
+            return;
+        }
+
+        System.out.print("Введіть UUID телефону для модифікації: ");
+        String uuidInput = scanner.nextLine().trim();
+        UUID uuidToModify;
+        try {
+            uuidToModify = UUID.fromString(uuidInput);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Помилка: Некоректний формат UUID.");
+            return;
+        }
+
+        Phone phoneToModify = store.searchByUuid(uuidToModify);
+        if (phoneToModify == null) {
+            System.out.println("Об'єкт з таким UUID не знайдено.");
+            return;
+        }
+
+        System.out.println("\n--- Знайдено об'єкт ---");
+        System.out.println(phoneToModify.toString());
+
+        System.out.println("\nОберіть атрибут для зміни:");
+        System.out.println("1. Бренд");
+        System.out.println("2. Модель");
+        System.out.println("3. Об'єм пам'яті");
+        System.out.println("4. Ціна");
+        System.out.println("5. ОС");
+        System.out.println("0. Скасувати");
+        System.out.print("Ваш вибір: ");
+
+        String choice = scanner.nextLine().trim();
+        boolean modified = false;
+
+        // Створюємо тимчасовий об'єкт Phone, щоб передати його в store.update
+        // Копіюємо всі поточні дані, а потім змінюємо потрібне поле
+        Phone tempPhone = null;
+        try {
+            // Для коректного створення тимчасового об'єкта потрібно знати його конкретний тип
+            // Це спрощений підхід, який працює, якщо Phone має конструктор копіювання
+            // або якщо ми можемо створити BasicPhone як "заглушку" для передачі даних
+            // Оскільки Phone абстрактний, створимо BasicPhone і скопіюємо дані
+            // У реальному проекті тут була б фабрика або більш складна логіка
+            tempPhone = new BasicPhone(phoneToModify.getBrand(), phoneToModify.getModel(),
+                                      phoneToModify.getStorage(), phoneToModify.getPrice(),
+                                      phoneToModify.getOsType());
+
+            switch (choice) {
+                case "1":
+                    System.out.print("Введіть новий бренд: ");
+                    tempPhone.setBrand(scanner.nextLine());
+                    modified = true;
+                    break;
+                case "2":
+                    System.out.print("Введіть нову модель: ");
+                    tempPhone.setModel(scanner.nextLine());
+                    modified = true;
+                    break;
+                case "3":
+                    System.out.print("Введіть новий об'єм пам'яті (ГБ): ");
+                    tempPhone.setStorage(Integer.parseInt(scanner.nextLine().trim()));
+                    modified = true;
+                    break;
+                case "4":
+                    System.out.print("Введіть нову ціну: ");
+                    tempPhone.setPrice(Double.parseDouble(scanner.nextLine().trim()));
+                    modified = true;
+                    break;
+                case "5":
+                    System.out.print("Оберіть нову ОС (ANDROID, IOS, HARMONY_OS, OTHER): ");
+                    tempPhone.setOsType(OsType.valueOf(scanner.nextLine().trim().toUpperCase()));
+                    modified = true;
+                    break;
+                case "0":
+                    System.out.println("Модифікацію скасовано.");
+                    return;
+                default:
+                    System.out.println("Помилка: Невідомий атрибут.");
+                    return;
+            }
+
+            if (modified) {
+                if (store.update(uuidToModify, tempPhone)) {
+                    System.out.println("Об'єкт успішно модифіковано!");
+                    System.out.println("Нові дані: " + store.searchByUuid(uuidToModify).toString());
+                } else {
+                    System.out.println("Помилка модифікації: Об'єкт не знайдено (хоча мав би бути).");
+                }
+            }
+
+        } catch (NumberFormatException e) {
+            System.out.println("Помилка вводу: Очікувалось числове значення.");
+        } catch (IllegalArgumentException e) {
+            System.out.println("Помилка валідації даних або невідома ОС: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Непередбачувана помилка: " + e.getMessage());
+        }
+    }
+
+    private void handleDeletionMenu() {
+        System.out.println("\n--- МЕНЮ ВИДАЛЕННЯ ТОВАРУ ---");
+        if (store.getInventory().isEmpty()) {
+            System.out.println("Склад порожній. Видалення неможливе.");
+            return;
+        }
+
+        System.out.print("Введіть UUID телефону для видалення: ");
+        String uuidInput = scanner.nextLine().trim();
+        UUID uuidToDelete;
+        try {
+            uuidToDelete = UUID.fromString(uuidInput);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Помилка: Некоректний формат UUID.");
+            return;
+        }
+
+        Phone phoneToDelete = store.searchByUuid(uuidToDelete);
+        if (phoneToDelete == null) {
+            System.out.println("Об'єкт з таким UUID не знайдено.");
+            return;
+        }
+
+        System.out.println("\n--- Знайдено об'єкт ---");
+        System.out.println(phoneToDelete.toString());
+
+        System.out.print("Ви впевнені, що хочете видалити цей об'єкт? (yes/no): ");
+        String confirmation = scanner.nextLine().trim().toLowerCase();
+
+        if (confirmation.equals("yes")) {
+            if (store.delete(uuidToDelete)) {
+                System.out.println("Об'єкт успішно видалено!");
+            } else {
+                System.out.println("Помилка видалення: Об'єкт не знайдено (хоча мав би бути).");
+            }
+        } else {
+            System.out.println("Видалення скасовано.");
         }
     }
 }
