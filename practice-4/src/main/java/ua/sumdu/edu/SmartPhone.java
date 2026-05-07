@@ -3,7 +3,7 @@ package ua.sumdu.edu;
 public class SmartPhone extends Phone {
     private boolean has5G;
 
-    public SmartPhone(String brand, String model, int storage, double price, OsType osType, boolean has5G) {
+    public SmartPhone(String brand, String model, int storage, double price, OsType osType, boolean has5G) throws InvalidFieldValueException {
         super(brand, model, storage, price, osType);
         this.has5G = has5G;
     }
