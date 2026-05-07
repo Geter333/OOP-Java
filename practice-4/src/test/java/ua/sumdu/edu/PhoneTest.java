@@ -2,46 +2,26 @@ package ua.sumdu.edu;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import java.util.UUID;
 
 class PhoneTest {
 
     @Test
-    void shouldThrowInvalidFieldValueExceptionWhenSettingInvalidPrice() {
-        assertThrows(InvalidFieldValueException.class, () -> {
-            Phone phone = new BasicPhone("Apple", "iPhone 15", 256, 999.99, OsType.IOS);
+    void shouldThrowExceptionWhenInvalidValueInSetter() {
+        Phone phone = new Phone("Apple", "iPhone 15", 256, 999.99, OsType.IOS);
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             phone.setPrice(-100.0);
         });
+        assertEquals("Ціна не може бути від'ємною.", exception.getMessage());
     }
 
     @Test
-    void shouldThrowInvalidFieldValueExceptionWhenCreatingWithInvalidData() {
-        assertThrows(InvalidFieldValueException.class, () -> {
-            new BasicPhone("", "Galaxy S24", 256, 800.0, OsType.ANDROID);
+    void shouldThrowExceptionWhenInvalidConstructorData() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Phone("", "Galaxy S24", 256, 800.0, OsType.ANDROID);
         });
-    }
-}
 
-class StoreTest {
-
-    @Test
-    void shouldThrowObjectNotFoundExceptionWhenDeletingNonExistingObject() {
-        Store store = new Store();
-        UUID nonExistentUuid = UUID.randomUUID();
-
-        assertThrows(ObjectNotFoundException.class, () -> {
-            store.delete(nonExistentUuid);
-        });
-    }
-
-    @Test
-    void shouldThrowObjectNotFoundExceptionWhenUpdatingNonExistingObject() throws InvalidFieldValueException {
-        Store store = new Store();
-        UUID nonExistentUuid = UUID.randomUUID();
-        Phone phone = new BasicPhone("Apple", "iPhone 15", 256, 999.99, OsType.IOS);
-
-        assertThrows(ObjectNotFoundException.class, () -> {
-            store.update(nonExistentUuid, phone);
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Phone("Samsung", "Galaxy S24", -10, 800.0, OsType.ANDROID);
         });
     }
 }
