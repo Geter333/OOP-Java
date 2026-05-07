@@ -33,6 +33,26 @@ public class Store {
         return null;
     }
 
+    public boolean delete(UUID uuidToDelete) {
+        return inventory.removeIf(item -> item.getPhone().getUuid().equals(uuidToDelete));
+    }
+
+    public boolean update(UUID uuidToUpdate, Phone newPhoneData) {
+        for (StoreItem item : inventory) {
+            if (item.getPhone().getUuid().equals(uuidToUpdate)) {
+                Phone phoneToUpdate = item.getPhone();
+                phoneToUpdate.setBrand(newPhoneData.getBrand());
+                phoneToUpdate.setModel(newPhoneData.getModel());
+                phoneToUpdate.setStorage(newPhoneData.getStorage());
+                phoneToUpdate.setPrice(newPhoneData.getPrice());
+                phoneToUpdate.setOsType(newPhoneData.getOsType());
+                // Note: UUID and Type are not updated as they are intrinsic properties.
+                return true;
+            }
+        }
+        return false;
+    }
+
     public ArrayList<Phone> searchByBrand(String brand) {
         ArrayList<Phone> result = new ArrayList<>();
         for (StoreItem item : inventory) {
