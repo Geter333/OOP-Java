@@ -24,7 +24,7 @@ public class AppRunner {
         jsonManager.loadFromJson(store, FILE_NAME);
         boolean running = true;
 
-        System.out.println("Вітаємо в системі обліку пристроїв (Версія 14 - Comparator)!");
+        System.out.println("Вітаємо в системі обліку пристроїв (Версія 15 - Lambda)!");
 
         while (running) {
             System.out.println("\n--- ГОЛОВНЕ МЕНЮ ---");
@@ -254,30 +254,15 @@ public class AppRunner {
 
         switch (choice) {
             case "1":
-                comparator = new Comparator<StoreItem>() {
-                    @Override
-                    public int compare(StoreItem o1, StoreItem o2) {
-                        return Integer.compare(o1.getPhone().getStorage(), o2.getPhone().getStorage());
-                    }
-                };
+                comparator = (o1, o2) -> Integer.compare(o1.getPhone().getStorage(), o2.getPhone().getStorage());
                 sortCriteria = "ЗА ОБ'ЄМОМ ПАМ'ЯТІ";
                 break;
             case "2":
-                comparator = new Comparator<StoreItem>() {
-                    @Override
-                    public int compare(StoreItem o1, StoreItem o2) {
-                        return Double.compare(o2.getPhone().getPrice(), o1.getPhone().getPrice());
-                    }
-                };
+                comparator = (o1, o2) -> Double.compare(o2.getPhone().getPrice(), o1.getPhone().getPrice());
                 sortCriteria = "ЗА ЦІНОЮ (ПО СПАДАННЮ)";
                 break;
             case "3":
-                comparator = new Comparator<StoreItem>() {
-                    @Override
-                    public int compare(StoreItem o1, StoreItem o2) {
-                        return o1.getPhone().getModel().compareToIgnoreCase(o2.getPhone().getModel());
-                    }
-                };
+                comparator = (o1, o2) -> o1.getPhone().getModel().compareToIgnoreCase(o2.getPhone().getModel());
                 sortCriteria = "ЗА НАЗВОЮ МОДЕЛІ";
                 break;
             case "0":
