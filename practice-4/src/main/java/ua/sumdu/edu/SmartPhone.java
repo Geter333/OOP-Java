@@ -14,8 +14,7 @@ public class SmartPhone extends Phone {
 
     @Override
     public String toString() {
-        return "SmartPhone [Brand=" + getBrand() + ", Model=" + getModel() +
-                ", OS=" + getOsType() + ", Storage=" + getStorage() +
-                "GB, Price=$" + getPrice() + ", 5G=" + (has5G ? "Yes" : "No") + "]";
+        return super.toString().replace("Phone [", "SmartPhone [") +
+                ", 5G=" + (has5G ? "Yes" : "No") + "]";
     }
 }
