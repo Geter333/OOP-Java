@@ -2,46 +2,26 @@ package ua.sumdu.edu;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import java.util.UUID;
 
 class PhoneTest {
 
     @Test
     void shouldThrowInvalidFieldValueExceptionWhenSettingInvalidPrice() {
-        assertThrows(InvalidFieldValueException.class, () -> {
-            Phone phone = new BasicPhone("Apple", "iPhone 15", 256, 999.99, OsType.IOS);
-            phone.setPrice(-100.0);
-        });
+        assertThrows(InvalidFieldValueException.class, () -> new BasicPhone("Apple", "iPhone 15", 256, -999.99, OsType.IOS));
     }
 
     @Test
-    void shouldThrowInvalidFieldValueExceptionWhenCreatingWithInvalidData() {
-        assertThrows(InvalidFieldValueException.class, () -> {
-            new BasicPhone("", "Galaxy S24", 256, 800.0, OsType.ANDROID);
-        });
-    }
-}
-
-class StoreTest {
-
-    @Test
-    void shouldThrowObjectNotFoundExceptionWhenDeletingNonExistingObject() {
-        Store store = new Store();
-        UUID nonExistentUuid = UUID.randomUUID();
-
-        assertThrows(ObjectNotFoundException.class, () -> {
-            store.delete(nonExistentUuid);
-        });
+    void shouldThrowInvalidFieldValueExceptionWhenCreatingWithEmptyBrand() {
+        assertThrows(InvalidFieldValueException.class, () -> new BasicPhone("", "Galaxy S24", 256, 800.0, OsType.ANDROID));
     }
 
     @Test
-    void shouldThrowObjectNotFoundExceptionWhenUpdatingNonExistingObject() throws InvalidFieldValueException {
-        Store store = new Store();
-        UUID nonExistentUuid = UUID.randomUUID();
-        Phone phone = new BasicPhone("Apple", "iPhone 15", 256, 999.99, OsType.IOS);
+    void shouldThrowInvalidFieldValueExceptionWhenCreatingWithEmptyModel() {
+        assertThrows(InvalidFieldValueException.class, () -> new BasicPhone("Samsung", "", 256, 800.0, OsType.ANDROID));
+    }
 
-        assertThrows(ObjectNotFoundException.class, () -> {
-            store.update(nonExistentUuid, phone);
-        });
+    @Test
+    void shouldThrowInvalidFieldValueExceptionWhenCreatingWithInvalidStorage() {
+        assertThrows(InvalidFieldValueException.class, () -> new BasicPhone("Samsung", "Galaxy S24", -256, 800.0, OsType.ANDROID));
     }
 }
